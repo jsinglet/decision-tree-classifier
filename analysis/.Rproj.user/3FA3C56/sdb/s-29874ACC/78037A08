@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1442165662161.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "78037A08",
+    "lastKnownWriteTime" : 27866499440705583,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "9mw8ziykbo",
+        "caption" : "auto.mpg",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=auto.mpg&cache_key=9mw8ziykbo",
+        "displayedObservations" : 392,
+        "environment" : "",
+        "object" : "auto.mpg",
+        "totalObservations" : 392,
+        "variables" : 10
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}
