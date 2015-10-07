@@ -8,7 +8,7 @@
 \usepackage{cite} % takes care of citations
 \usepackage[final]{hyperref} % adds hyper links inside the generated pdf file
 \hypersetup{
-	colorlinks=true,       % false: boxed links; true: colored links
+	colorlinks=true,       % false: boxed links; true: colored links 
 	linkcolor=blue,        % color of internal links
 	citecolor=blue,        % color of links to bibliography
 	filecolor=magenta,     % color of file links
@@ -16,7 +16,7 @@
 }
 
 \lstset{ 
-  frame=none, 
+  frame=none,  
   xleftmargin=2pt,
   stepnumber=1,
   numbers=left,
@@ -187,13 +187,24 @@ selectAttribute attrs examples d = do
                             attrs
   (remainingAttributes, a)
 
-calculateGini classified examples =
-  1.0 - sum(map (\(_, classifiedExamples) ->
-                   ((fromIntegral $ length classifiedExamples)/numExamples)^2)
-            classified
-           )
+calculateGiniIndex classified examples pf =
+  weightedAverage $
+  map (\(_, classifiedExamples)
+       ->  (fromIntegral $
+       length classifiedExamples) *
+       (1 - ((c1 classifiedExamples)^2  +  (c2 classifiedExamples)^2)) -- Sigma
+      ) classified
   where
-    numExamples = fromIntegral $ length examples
+    c1 ex = case (pf ex) of
+      Yes -> 1.0
+      No  -> 0.0
+      CantSay d -> d
+    c2 ex = case (pf ex) of
+      Yes -> 0.0
+      No  -> 1.0
+      CantSay d -> 1.0-d
+    weightedAverage x = Stats.mean x
+                            
 \end{minted}
 
 \caption{Implementation of GINI minimization function in \texttt{DecisionTree.hs}}
@@ -332,6 +343,8 @@ $ .cabal-sandbox/bin/decision-tree-classifier -show
 \end{minted}
 \end{listing}
 
+In addition to the options shown above, this tool also supports a \texttt{-check} option that evaluates the training set against a validation set for purposes of doing quick overfitting checking. 
+
 
 \section{Results}
  
@@ -354,19 +367,19 @@ In this section we present the results of our decision tree classifier. In our $
   \hline
   Attribute &  Average & Median & $\sigma$ \\
   \hline
-  Precision & .856 & 1.0 & .25 \\
+  Precision & 0.869 & 0.855 & 0.029 \\
   \hline
-  Recall    & 1.0 & 1.0 & 1.0 \\
+  Recall  &   0.891 & 0.894 & 0.032 \\ 
   \hline
-  FMeasure  & .90 & 1.0 & .16 \\
+  FMeasure &  0.879 & 0.88 & 0.078 \\
   \hline
-  Accuracy  & .85 & 1.0 & .25 \\
+  Accuracy & 0.856 & 0.861 & 0.008 \\
   \hline
-
 \end{tabular}
 \caption{Classifier accuracy report with a model that includes the car make attribute.}
 \label{table:with-model}
 \end{table}
+
 
 
 
@@ -376,23 +389,36 @@ In this section we present the results of our decision tree classifier. In our $
   \hline
   Step & Accuracy & FMeasure & Error \\
   \hline
-  1 & .856 & 1.0 & .25 \\
+  1 & .861 & .88 & .318\\
   \hline
-  2    & 1.0 & 1.0 & 1.0 \\
+  2    & .846 & .871 & .153 \\
   \hline
-  3  & .90 & 1.0 & .16 \\
+  3  & .861 & .887 & .138 \\
   \hline
 \end{tabular}
-\caption{Classifier accuracy report with a model that includes the car make attribute.}
+\caption{Classifier accuracy report by each step of k-cross fold validation.}
 \label{table:with-model}
 \end{table}
 
 
-A few interesting aspects are evident in Table \ref{table:with-model}. First, our classifier demonstrates a FMeasure of $.90$, with a standard deviation of approximately 14\%. Curiously our classifier rarely identifies false negatives in our data set. This is likely due to the strong predictors of fuel mileage, namely horsepower and cylinders, which always appear early in the classification flow.
+A few interesting aspects are evident in Table \ref{table:with-model}. First, our classifier demonstrates a FMeasure of $.87$, with a standard deviation of approximately .078. Though the results of our cross validation displayed stable performance with unseen data, we conducted one final measure to check for overfitting. In this test we simply split our data set into two parts. We trained our decision tree on one half of the data and then used the resulting decision tree to score the data that had been used to train it. To see if perhaps the tree was too closely learning the training data we then used the unseen data on the trained decision tree and compared the results. The data from this experiment is displayed in Table \ref{table:overfitting}. 
 
-\subsection{Overfitting Analysis}
+\begin{table}[H]
+  \centering
 
-In our analysis
+  \begin{tabular}{l|l|l|}
+\cline{2-3}
+                                & \textbf{Trained Data} & \textbf{Unseen Data} \\ \hline
+\multicolumn{1}{|l|}{Precision} & 0.982                 & 0.941                \\ \hline
+\multicolumn{1}{|l|}{Recall}    & 0.982                 & 0.937                \\ \hline
+\multicolumn{1}{|l|}{FMeasure}  & 0.982                 & 0.923                \\ \hline
+\multicolumn{1}{|l|}{Accuracy}  & 0.979                 & 0.923                \\ \hline
+\end{tabular}
+\caption{Comparison of trained decision tree performance on trained vs unseen data.}
+\label{table:overfitting}
+\end{table}
+
+As can be seen in  Table \ref{table:overfitting}, the trained data predictably performs better than the unseen data. However, this is by a very small margin (less than 0.10 in all cases). As can been seen in the cross validation results the decision tree classifier indeed does generalize to unseen data since each step of the k-fold validation achieves greater than .85 in each category of performance. 
 
 \bibliography{report}
 \bibliographystyle{plain}

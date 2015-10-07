@@ -64,22 +64,22 @@ selectAttribute attrs examples d pf = do
 --                                       numExamples = fromIntegral $ length examples
 
 
-calculateGiniIndex classified examples pf = weightedAverage $ map (\(_, classifiedExamples)
-                                                 ->  (fromIntegral $ length classifiedExamples) * (1 - ((c1 classifiedExamples)^2  +  (c2 classifiedExamples)^2)) -- Sigma
-                                                    ) classified
-                                         where
-                                           -- c1 ex = (fromIntegral $ length $ filter cf ex)/(fromIntegral $ length ex)
-                                           -- c2 ex = (fromIntegral $ length $ filter (not.cf) ex)/(fromIntegral $ length ex)
-                                           c1 ex = case (pf ex) of
-                                             Yes -> 1.0
-                                             No  -> 0.0
-                                             CantSay d -> d
-                                           c2 ex = case (pf ex) of
-                                             Yes -> 0.0
-                                             No  -> 1.0
-                                             CantSay d -> 1.0-d
-
-                                           weightedAverage x = Stats.mean x
+calculateGiniIndex classified examples pf =
+  weightedAverage $
+  map (\(_, classifiedExamples)
+       ->  (fromIntegral $
+            length classifiedExamples) * (1 - ((c1 classifiedExamples)^2  +  (c2 classifiedExamples)^2)) -- Sigma
+      ) classified
+  where
+    c1 ex = case (pf ex) of
+      Yes -> 1.0
+      No  -> 0.0
+      CantSay d -> d
+    c2 ex = case (pf ex) of
+      Yes -> 0.0
+      No  -> 1.0
+      CantSay d -> 1.0-d
+    weightedAverage x = Stats.mean x
                                            
 
                                       

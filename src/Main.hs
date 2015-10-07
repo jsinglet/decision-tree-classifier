@@ -3,7 +3,6 @@ module Main where
 
 import System.Environment
 import Model 
---import MPGModel
 import DecisionTree
 import Classifier
 import DOT
@@ -44,12 +43,14 @@ helpMessage :: String
 helpMessage = [qq|Usage: decision-tree-classifer [ -validate | -show ] 
 -validate:	Perform a k-fold validation of the data set (k=3)
 -show:		Output the decision tree in DOT format for visualization
+-check:		Perform a quick overfitting test to compare trained data vs validation data.
 |]
 
 
 dispatch :: [(String, (IO ()))]  
 dispatch =  [ ("-validate",     validateModel)  
             , ("-show", showDotRepresentation)
+            , ("-check", checkOverfitting)
             ]  
 
 invalidUsage :: IO ()

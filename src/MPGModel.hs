@@ -5,6 +5,7 @@ module MPGModel where
 import Model
 import DecisionTree
 import Data.List
+import Debug.Trace
 
 data MPGModel = MPGModel { mpg          :: Double
                          , cylinders    :: Integer
@@ -34,6 +35,8 @@ instance LoadableModel MPGModel where
 allCarMakers :: [MPGModel] -> [String]
 allCarMakers model = nub $ map (\x -> head $ words (carName x)) model
 
+carMakers = ["chevrolet","buick","plymouth","amc","ford","pontiac","dodge","toyota","datsun","volkswagen","peugeot","audi","saab","bmw","chevy","hi","mercury","opel","fiat","oldsmobile","chrysler","mazda","volvo","renault","toyouta","maxda","honda","subaru","chevroelt","capri","vw","mercedes-benz","cadillac","mercedes","vokswagen","triumph","nissan"]
+
 decisionTreeAttributes :: [MPGModel] -> [AttributeGroup MPGModel]
 decisionTreeAttributes ds = [ AttributeGroup 0 "Cylinders"    $ (splitAttribute "Cylinders" (toDouble cylinders) (extract (toDouble cylinders)))
                             , AttributeGroup 0 "Displacement" $ (splitAttribute "Displacement" displacement (extract displacement))
@@ -42,7 +45,7 @@ decisionTreeAttributes ds = [ AttributeGroup 0 "Cylinders"    $ (splitAttribute 
                             , AttributeGroup 0 "Acceleration" $ (splitAttribute "Acceleration" acceleration (extract acceleration))
                             , AttributeGroup 0 "ModelYear"    $ (splitAttribute "ModelYear" (toDouble modelYear) (extract (toDouble modelYear)))
                             , AttributeGroup 0 "Origin"       $ (splitAttribute "Origin" (toDouble origin) (extract (toDouble origin)))
---                            , AttributeGroup 0 "CarName"      $ map (\maker -> AttributeClassification "CarName" ("CarName=" ++ maker) (\x -> elem maker (words (carName x)))) (allCarMakers ds)
+                            , AttributeGroup 0 "CarName"      $ map (\maker -> AttributeClassification "CarName" ("CarName=" ++ maker) (\x -> elem maker (words (carName x)))) carMakers
 
                             ]
 

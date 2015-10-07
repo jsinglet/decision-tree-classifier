@@ -7,7 +7,6 @@ import Debug.Trace
 import Model
 import Data.List
 import Stats
-import Debug.Hood.Observe
 
 {-
   Used for making guesses about instances
