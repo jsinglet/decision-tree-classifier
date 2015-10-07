@@ -70,3 +70,4 @@ var xs = (var' 0 0 0 xs) / (fromIntegral $ length xs - 1)
          where
            delta = x - m
            nm = m + delta/(fromIntegral $ n + 1)
+

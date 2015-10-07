@@ -42,7 +42,7 @@ decisionTreeAttributes ds = [ AttributeGroup 0 "Cylinders"    $ (splitAttribute 
                             , AttributeGroup 0 "Acceleration" $ (splitAttribute "Acceleration" acceleration (extract acceleration))
                             , AttributeGroup 0 "ModelYear"    $ (splitAttribute "ModelYear" (toDouble modelYear) (extract (toDouble modelYear)))
                             , AttributeGroup 0 "Origin"       $ (splitAttribute "Origin" (toDouble origin) (extract (toDouble origin)))
-                            , AttributeGroup 0 "CarName"      $ map (\maker -> AttributeClassification "CarName" ("CarName=" ++ maker) (\x -> elem maker (words (carName x)))) (allCarMakers ds)
+--                            , AttributeGroup 0 "CarName"      $ map (\maker -> AttributeClassification "CarName" ("CarName=" ++ maker) (\x -> elem maker (words (carName x)))) (allCarMakers ds)
 
                             ]
 

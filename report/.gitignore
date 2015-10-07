@@ -1,0 +1,6 @@
+*.log
+/_minted-report/
+/report.aux
+/report.bbl
+/report.blg
+/report.out
