@@ -16,7 +16,7 @@ import Text.Printf
 import AdultModel
 import MPGModel
 
-load :: IO [AdultModel]
+load :: IO [MPGModel]
 load = loadModel
 
 main :: IO ()
