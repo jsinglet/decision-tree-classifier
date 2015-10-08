@@ -16,9 +16,9 @@
 }
 
 \lstset{ 
-  frame=none,  
+  frame=none,   
   xleftmargin=2pt,
-  stepnumber=1,
+  stepnumber=1, 
   numbers=left,
   numbersep=5pt,
   numberstyle=\ttfamily\tiny\color[gray]{0.3},
@@ -205,7 +205,7 @@ calculateGiniIndex classified examples pf =
       CantSay d -> 1.0-d
     weightedAverage x = Stats.mean x
                             
-\end{minted}
+\end{minted} 
 
 \caption{Implementation of GINI minimization function in \texttt{DecisionTree.hs}}
 \label{code:gini} 
@@ -219,7 +219,7 @@ Since none of the attributes in our data set are binary, one of the first challe
 For each real-valued attribute, the split point was derived by computing the minimization function given in Equation \ref{eqn:min}.
 
 \begin{equation}
-  \min_{j,s} \left[\sum_{x_i \in R_1(j,s)} (y_i - \hat\beta_1)^2 + \sum_{x_i \in R_2(j,s)} (y_i - \hat\beta_2)^2\right]
+  \min_{j,s} \left[\sum_{x_i \in R_1(j,s)} (x_i - \hat\beta_1)^2 + \sum_{x_i \in R_2(j,s)} (x_i - \hat\beta_2)^2\right]
   \label{eqn:min}
 \end{equation} 
 
@@ -229,7 +229,7 @@ Where $R_1$ consists of the set of values less than or equal to some split point
 \hat\beta_1 = avg(y_i ~|~ x_i \in R_1(j,s)))
 \]
 \[
-\hat\beta_3 = avg(y_i ~|~ x_i \in R_2(j,s)))
+\hat\beta_2 = avg(y_i ~|~ x_i \in R_2(j,s)))
 \]
 
 We provide the details of our implementation of this minimization function in Listing \ref{code:two}.
