@@ -7,6 +7,7 @@ import Debug.Trace
 import Model
 import Data.List
 import Stats
+import Text.Printf
 
 {-
   Used for making guesses about instances
@@ -26,17 +27,42 @@ data AccuracyMeasure =
   | Accuracy
   deriving (Show,Eq)
 
+-- show (AccuracyResult Precision v (a, b, c)) = "Precision: (" ++ (show v) ++ ")  " ++ (show a) ++ "," ++ (show b) ++ "," ++ (show c)
+
+labelMean :: String
+labelMean = "mean"
+labelMedian :: String
+labelMedian = "median"
+labelSTDDev :: String
+labelSTDDev = "stddev"
+labelBlank  :: String
+labelBlank = ""
+labelValue :: String
+labelValue = "value"
+labelPrecision :: String
+labelPrecision = "Precision"
+labelRecall :: String
+labelRecall    = "Recall"
+labelFMeasure :: String
+labelFMeasure  = "FMeasure"
+labelAccuracy :: String
+labelAccuracy =  "Accuracy"
+labelInformal :: String
+labelInformal = "Informal"
+
 data AccuracyResult = AccuracyResult AccuracyMeasure Double (Double,Double,Double) deriving (Eq) 
 
 instance Show ClassifierAccuracy where
-  show (ClassifierAccuracy a) = "Classifier Accuracy Report\n" ++ "--------------------------\t(mean/median/stddev)\n" ++ (concat $ map (\x -> (show x) ++ "\n") a)
+  show (ClassifierAccuracy a) = "Classifier Accuracy Report\n" ++
+                                "--------------------------\n" ++
+                                (printf "%-13s  %10s %10s %10s %10s\n" labelBlank labelValue labelMean labelMedian labelSTDDev ) ++ (concat $ map (\x -> (show x) ++ "\n") a)
 
 instance Show AccuracyResult where
-  show (AccuracyResult Precision v (a, b, c)) = "Precision: (" ++ (show v) ++ ")  " ++ (show a) ++ "," ++ (show b) ++ "," ++ (show c)
-  show (AccuracyResult Recall v (a, b, c)) =    "Recall:    (" ++ (show v) ++ ")  " ++ (show a) ++ "," ++ (show b) ++ "," ++ (show c)
-  show (AccuracyResult FMeasure v (a, b, c)) =  "FMeasure:  (" ++ (show v) ++ ")  " ++ (show a) ++ "," ++ (show b) ++ "," ++ (show c)
-  show (AccuracyResult Informal v (a, b, c)) =  "Informal:  (" ++ (show v) ++ ")  " ++ (show a) ++ "," ++ (show b) ++ "," ++ (show c)
-  show (AccuracyResult Accuracy v (a, b, c)) =  "Accuracy:  (" ++ (show v) ++ ")  " ++ (show a) ++ "," ++ (show b) ++ "," ++ (show c)
+  show (AccuracyResult Precision v (a, b, c)) = (printf "%-13s: %10.3f %10.3f %10.3f %10.3f" labelPrecision v a b c) 
+  show (AccuracyResult Recall v (a, b, c)) =    (printf "%-13s: %10.3f %10.3f %10.3f %10.3f" labelRecall v a b c) 
+  show (AccuracyResult FMeasure v (a, b, c)) =  (printf "%-13s: %10.3f %10.3f %10.3f %10.3f" labelFMeasure v a b c)
+  show (AccuracyResult Informal v (a, b, c)) =  (printf "%-13s: %10.3f %10.3f %10.3f %10.3f" labelInformal v a b c)
+  show (AccuracyResult Accuracy v (a, b, c)) =  (printf "%-13s: %10.3f %10.3f %10.3f %10.3f" labelAccuracy v a b c)
 
 classify :: (Show a) => a -> Tree (Decision a) -> Explanation -> (Classification a)
 classify example (Node (Decision _ _ _ examples (Just d)) []) path = {-trace ("Judgement:" ++ (show d) ++ "\nPATH:" ++ (show path) ) $ -}  Classification d example path

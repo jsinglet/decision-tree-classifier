@@ -7,6 +7,7 @@ import Data.IORef
 import Minimize
 import Debug.Trace
 import Stats
+import Model
 -- 
 -- Data types 
 -- 
@@ -16,26 +17,7 @@ data Decision a = Decision { classification :: Attribute a
                            , examples       :: [a]
                            , decision       :: Maybe StopCondition
                            } deriving (Show)
-
-
-data AttributeGroup a = AttributeGroup Int String [Attribute a] 
-data Attribute a = AttributeClassification String String (a -> Bool)
-                 | NoAttribute 
-
-data StopCondition = Yes | No | CantSay Double deriving (Show)
-
 type Counter = Int -> IO Int
-
---
--- Class instances
---
-instance Show (Attribute a)  where
-  show (AttributeClassification name description _) = "{Attribute: " ++ name ++ ", Description: " ++ description ++ "}"
-  show NoAttribute = "N/A"
-
-instance Show (AttributeGroup a) where
-  show (AttributeGroup generation name attributes) = "AttributeGroup " ++ (show generation) ++ ", " ++ name ++ " [\n" ++ (show attributes) ++ "\n]"
-
 
 --
 -- Traversal functions

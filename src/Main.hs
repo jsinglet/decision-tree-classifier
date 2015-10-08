@@ -2,30 +2,22 @@
 module Main where
 
 import System.Environment
-import Model 
+import Model
 import DecisionTree
 import Classifier
 import DOT
 import QQ
 import Data.Tree
---import AdultModel
+import Text.Printf 
+
+{-
+ We support two different models, MPG and Adult. to load one or the other just change the signature of the load function, below.
+-}
+import AdultModel
 import MPGModel
 
-readAutoMPGCSVFile :: IO [[String]]
-readAutoMPGCSVFile = readCSVFile "data/auto-mpg/auto-mpg.data"
-
-loadModel :: IO [MPGModel]
-loadModel = readAutoMPGCSVFile >>= \x -> return (readModel x)
-
--- readAdultCSVFile :: IO [[String]]
--- readAdultCSVFile = readCSVFile "data/adult/adult.data.txt"
-
--- loadModel :: IO [AdultModel]
--- loadModel = readAdultCSVFile >>= \x -> return (readModel x)
-
--- loadModel :: IO [MPGModel]
--- loadModel = readAutoMPGCSVFile >>= \x -> return (readModel x)
-
+load :: IO [AdultModel]
+load = loadModel
 
 main :: IO ()
 main = do  
@@ -63,9 +55,10 @@ help :: IO ()
 help = putStrLn helpMessage
 
 
+
 -- shows a DOT representation (using the entire model)
 showDotRepresentation = do
-  m <- loadModel
+  m <- load 
   let model = m 
   c <- makeCounter
   let attrs = decisionTreeAttributes m
@@ -75,38 +68,33 @@ showDotRepresentation = do
 
 -- perform a k=3 fold validation of our model
 validateModel = do
-  m <- loadModel
+  m <- load 
   c <- makeCounter
   
   (series, res) <- (validate m purityFunction  decisionTreeAttributes 3 categoryFunction)
 
-  putStrLn "Series Data"
-  putStrLn "---------------------------------------------"
-  putStrLn "Step\t\tAccuracy\tFMeasure\tError"
-  mapM (\(((AccuracyResult _ a _), (AccuracyResult _ f _), (AccuracyResult _ e _)),pt) ->
-          putStrLn $ (show pt) ++ ".\t\t" ++ ((show a) ++ "\t" ++ (show f) ++ "\t" ++ (show e) ++ "\t")
-       ) (zip series [1..])
-  
+  printSeries series
   putStrLn $ show res
  
   return ()
 
-printScores scores = do
+printSeries series = do
   putStrLn "Series Data"
   putStrLn "---------------------------------------------"
-  putStrLn "Step\t\tAccuracy\tFMeasure\tError"
+  printf "%-10s %10s %10s %10s\n" "Step" "Accuracy" "FMeasure" "Error"
   mapM (\(((AccuracyResult _ a _), (AccuracyResult _ f _), (AccuracyResult _ e _)),pt) ->
-          putStrLn $ (show pt) ++ ".\t\t" ++ ((show a) ++ "\t" ++ (show f) ++ "\t" ++ (show e) ++ "\t")
+          printf "%-10s %10.3f %10.3f %10.3f\n" (show pt ++ ".") a f e
        ) (zip series [1..])
   
+printScores scores = do
+  printSeries series
   putStrLn $ show res
-
     where
       series = seriesData [scores]
       res    = rollup [scores]
 
 checkOverfitting = do
-  m <- loadModel
+  m <- load
   m2 <- shuffle m
   let model = split m2 2
   let training = model !! 0
@@ -122,13 +110,12 @@ checkOverfitting = do
   printScores (score training tree categoryFunction)
   putStrLn "Trained Tree Applied to Unseen Model"
   putStrLn "------------------------------------"
-
   printScores (score validation tree categoryFunction)
   
   
 
 getTree = do
-  m <- loadModel
+  m <- load
   m2 <- shuffle m
   let model = split m2 2
   let training = model !! 0
@@ -141,7 +128,7 @@ getTree = do
   return (tree)
 
 test1 = do
-  m <- loadModel
+  m <- load
   m2 <- shuffle m
   let model = split m2 2
   let training = model !! 0

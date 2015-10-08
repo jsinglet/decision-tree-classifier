@@ -7,23 +7,6 @@ import DecisionTree
 import Data.List
 import Data.String.Utils
 
-{-
-0 39,
-1 State-gov,
-2 77516,
-3 Bachelors,
-4 13,
-5 Never-married,
-6 Adm-clerical,
-7 Not-in-family,
-8 White,
-9 Male,
-10 2174,
-11 0,
-12 40,
-13 United-States,
-14 <=50K
--}
 data AdultModel = AdultModel { age              :: Integer -- 0
                              , fnlwgt           :: Integer -- 2
                              , education        :: String  -- 3
@@ -39,6 +22,33 @@ data AdultModel = AdultModel { age              :: Integer -- 0
 
 instance LoadableModel AdultModel where
   readModel model = map (\row -> toInstance row) model
+
+  categoryFunction example = (\x ->  isInfixOf "<=50K" (income x)) example
+
+  loadModel = readAdultCSVFile >>= \x -> return (readModel x)
+
+  purityFunction examples
+    | ((length $ filter categoryFunction examples) == length examples) = Yes
+    | ((length $ filter categoryFunction examples) == 0)               = No
+    | otherwise = CantSay (fractionYes)
+    where
+      fractionYes = (fromIntegral $ length (filter categoryFunction examples)) / (fromIntegral $ length examples)
+
+  decisionTreeAttributes ds = [
+    -- all the numeric attributes first
+      AttributeGroup 0 "Age"         $  (splitAttribute "Age" (toDouble age) (extract (toDouble age)))
+    , AttributeGroup 0 "CapitalGain" $  (splitAttribute "CapitalGain" (toDouble capitalGain) (extract (toDouble capitalGain)))
+    , AttributeGroup 0 "Hours"       $  (splitAttribute "Hours" (toDouble hours) (extract (toDouble hours)))   
+    , educationAttributes
+    , AttributeGroup 0 "MarriageStatus" $ splitCategory "MarriageStatus" (marriageStatus) ds
+      --, AttributeGroup 0 "Occupation" $ splitCategory "Occupation" (occupation) ds
+      -- , AttributeGroup 0 "Relationship" $ splitCategory "Relationship" (relationship) ds
+    , AttributeGroup 0 "Race" $ splitCategory "Race" (race) ds
+    ]
+    where
+      extract f = map (\x -> f x) ds
+      toDouble f x = fromInteger (f x) :: Double
+
   toInstance row   = AdultModel 
                      (read (row !! 0)) 
                      (read (row !! 2))
@@ -51,6 +61,11 @@ instance LoadableModel AdultModel where
                      (read (row !! 12))
                      (strip (row !! 14))
 
+--
+-- Support Functions
+--
+
+
 splitCategory ::
   String -- category name
   -> (AdultModel -> String)
@@ -59,43 +74,12 @@ splitCategory ::
 splitCategory name category ds = map (\maker -> AttributeClassification name (name ++ "=" ++ maker) (\x -> category x == maker)) (extract)
   where
     extract = nub $ map (\x -> category x) ds :: [String]
-  
-
-
 
 educationAttributes  = AttributeGroup 0 "Education" [
   AttributeClassification "Education" "More than HS" (\x -> elem (education x) ["Bachelors", "Some-college", "Prof-school", "Assoc-acdm", "Assoc-voc","Masters", "Doctorate"] )
   , AttributeClassification "Education" "High School or Less" (\x -> elem (education x) ["11th", "9th", "7th-8th", "HS-grad", "12th", "1st-4th", "10th", "5th-6th", "Preschool"] )
   ]
 
+readAdultCSVFile :: IO [[String]]
+readAdultCSVFile = readCSVFile "data/adult/adult.data.txt"
 
-decisionTreeAttributes :: [AdultModel] -> [AttributeGroup AdultModel]
-decisionTreeAttributes ds = [
-  -- all the numeric attributes first
-  AttributeGroup 0 "Age"         $  (splitAttribute "Age" (toDouble age) (extract (toDouble age)))
-  , AttributeGroup 0 "CapitalGain" $  (splitAttribute "CapitalGain" (toDouble capitalGain) (extract (toDouble capitalGain)))
- , AttributeGroup 0 "Hours"       $  (splitAttribute "Hours" (toDouble hours) (extract (toDouble hours)))   
- , educationAttributes
- , AttributeGroup 0 "MarriageStatus" $ splitCategory "MarriageStatus" (marriageStatus) ds
- --, AttributeGroup 0 "Occupation" $ splitCategory "Occupation" (occupation) ds
--- , AttributeGroup 0 "Relationship" $ splitCategory "Relationship" (relationship) ds
- , AttributeGroup 0 "Race" $ splitCategory "Race" (race) ds
-  ]
-  where
-                                extract f = map (\x -> f x) ds
-                                toDouble f x = fromInteger (f x) :: Double
-
-
-categoryFunction :: AdultModel -> Bool
-categoryFunction example = (\x ->  isInfixOf "<=50K" (income x)) example
-
- 
-purityFunction :: [AdultModel] -> StopCondition
-purityFunction examples
-  | ((length $ filter categoryFunction examples) == length examples) = Yes
-  | ((length $ filter categoryFunction examples) == 0)               = No
-  | otherwise = CantSay (fractionYes)
-                where
-                  fractionYes = (fromIntegral $ length (filter categoryFunction examples)) / (fromIntegral $ length examples)
-
-                  

@@ -5,7 +5,7 @@ import Data.IORef
 import Debug.Trace
 import DecisionTree
 import Text.Printf
- 
+import Model 
 toDiGraph :: (Show a) => Tree (Decision a) -> String
 toDiGraph graph = "digraph TrainedDecisionTree {\n" ++
                   (dfsShow Nothing graph) ++ -- the raw edge connection data
